@@ -1,13 +1,10 @@
 # Build stage
 FROM node:22-alpine AS builder
-# Set working directory
+
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml ./
-
-# Copy patches
-COPY patches ./patches
+# Copy package files and patches
+COPY package.json pnpm-lock.yaml patches ./patches ./
 
 # Install dependencies
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
@@ -20,13 +17,11 @@ RUN pnpm run build
 
 # Production stage
 FROM node:22-alpine
-# Set working directory
+
 WORKDIR /app
 
 # Copy package files for production
 COPY package.json pnpm-lock.yaml ./
-
-# Copy patches for production
 COPY patches ./patches
 
 # Install production dependencies only
@@ -46,5 +41,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:8080/api/meta-capi/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
-# Start the application
-CMD ["node", "dist/index.mjs"]
+# Start the application using npm start
+CMD ["npm", "start"]
