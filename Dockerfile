@@ -1,6 +1,5 @@
 # Build stage
-FROM node:18-alpine AS builder
-
+FROM node:22-alpine AS builder
 # Set working directory
 WORKDIR /app
 
@@ -20,8 +19,7 @@ COPY . .
 RUN pnpm run build
 
 # Production stage
-FROM node:18-alpine
-
+FROM node:22-alpine
 # Set working directory
 WORKDIR /app
 
@@ -49,4 +47,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:8080/api/meta-capi/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
 # Start the application
-CMD ["node", "--input-type=module", "--eval", "import('./dist/index.mjs').then(m => m.default()).catch(e => {console.error(e); process.exit(1)});"]
+CMD ["node", "dist/index.mjs"]
